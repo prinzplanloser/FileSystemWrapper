@@ -63,8 +63,7 @@ class FileWrapper
     public
     function scan(): ?array
     {
-        $files = array_values(array_diff(scandir($this->pathToFile), ['..', '.']));
-        var_dump($files);
+        $files = array_values(array_diff(scandir($this->pathToFiles), ['..', '.']));
         if ($files === null) {
             throw new FileWrapperException('Ошибка сканирования директории');
         } else {
@@ -75,7 +74,7 @@ class FileWrapper
     public
     function rename(string $oldName, string $newPath, string $newName)
     {
-        $rename = rename($this->pathToFile . $oldName, $newPath . '\\' . $newName);
+        $rename = rename($this->pathToFiles . $oldName, $newPath . '\\' . $newName);
         if ($rename) {
             return true;
         } else {
@@ -86,7 +85,7 @@ class FileWrapper
     public
     function setPath(string $path): void
     {
-        $this->pathToFile = $path . '\\';
+        $this->pathToFiles = $path . '\\';
     }
 
     public
@@ -100,7 +99,7 @@ class FileWrapper
     function downloadFileWithCurl(string $url, string $name)
     {
         $ch = curl_init($url);
-        $fp = fopen($this->pathToFile . $name, 'wb');
+        $fp = fopen($this->pathToFiles . $name, 'wb');
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_exec($ch);
@@ -161,7 +160,7 @@ class FileWrapper
     private
     function fullPath(string $name): string
     {
-        $pathWithName = $this->pathToFile . $name;
+        $pathWithName = $this->pathToFiles . $name;
         return $pathWithName;
     }
 }
