@@ -6,7 +6,7 @@ use App\Exceptions\FileWrapperException;
 
 class FileWrapper
 {
-    private $pathToFile;
+    private $pathToFiles;
 
     public function __construct(string $path)
     {
