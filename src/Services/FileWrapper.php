@@ -10,7 +10,7 @@ class FileWrapper
 
     public function __construct(string $path)
     {
-        $this->pathToFile = $path . '\\';
+        $this->pathToFiles = $path . '\\';
     }
 
     private function deleteFile(string $name): ?bool
