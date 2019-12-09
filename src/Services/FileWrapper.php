@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\FileWrapperException;
+use FilesystemIterator;
 
 class FileWrapper
 {
@@ -23,9 +24,17 @@ class FileWrapper
         }
     }
 
-    private function deleteDirectory(string $name): ?bool
+    private function deleteDirectory(string $dir)
     {
-        $delete = rmdir($this->pathToFile . $name);
+        $includes = new FilesystemIterator($dir);
+        foreach ($includes as $include) {
+            if (is_dir($include) && !is_link($include)) {
+                $this->deleteDirectory($include);
+            } else {
+                unlink($include);
+            }
+        }
+        $delete = rmdir($dir);
         if ($delete) {
             return true;
         } else {
@@ -51,7 +60,8 @@ class FileWrapper
         return $result;
     }
 
-    public function scan(): ?array
+    public
+    function scan(): ?array
     {
         $files = array_values(array_diff(scandir($this->pathToFile), ['..', '.']));
         var_dump($files);
@@ -62,7 +72,8 @@ class FileWrapper
         }
     }
 
-    public function rename(string $oldName, string $newPath, string $newName)
+    public
+    function rename(string $oldName, string $newPath, string $newName)
     {
         $rename = rename($this->pathToFile . $oldName, $newPath . '\\' . $newName);
         if ($rename) {
@@ -72,18 +83,21 @@ class FileWrapper
         }
     }
 
-    public function setPath(string $path): void
+    public
+    function setPath(string $path): void
     {
         $this->pathToFile = $path . '\\';
     }
 
-    public function downloadFileWithUrl(string $url, string $name)
+    public
+    function downloadFileWithUrl(string $url, string $name)
     {
         $path = $this->fullPath($name);
         file_put_contents($path, file_get_contents($url));
     }
 
-    public function downloadFileWithCurl(string $url, string $name)
+    public
+    function downloadFileWithCurl(string $url, string $name)
     {
         $ch = curl_init($url);
         $fp = fopen($this->pathToFile . $name, 'wb');
@@ -95,7 +109,8 @@ class FileWrapper
 
     }
 
-    public function fileToArray(string $name): array
+    public
+    function fileToArray(string $name): array
     {
         $path = $this->fullPath($name);
         $result = file($path);
@@ -106,7 +121,8 @@ class FileWrapper
         }
     }
 
-    public function createDirectory(string $name, int $mode = 0777)
+    public
+    function createDirectory(string $name, int $mode = 0777)
     {
         $path = $this->fullPath($name);
         $dir = mkdir($path, $mode);
@@ -117,7 +133,8 @@ class FileWrapper
         }
     }
 
-    public function changeFileMode(string $name, int $mode)
+    public
+    function changeFileMode(string $name, int $mode)
     {
         $path = $this->fullPath($name);
         $newMode = chmod($path, $mode);
@@ -128,7 +145,8 @@ class FileWrapper
         }
     }
 
-    public function createFile(string $name, $content = '')
+    public
+    function createFile(string $name, $content = '')
     {
         $path = $this->fullPath($name);
         if (!file_exists($path)) {
@@ -140,7 +158,8 @@ class FileWrapper
         }
     }
 
-    private function fullPath(string $name): string
+    private
+    function fullPath(string $name): string
     {
         $pathWithName = $this->pathToFile . $name;
         return $pathWithName;
