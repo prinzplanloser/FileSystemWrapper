@@ -1,5 +1,8 @@
 <?php
 
+namespace App\Services;
+
+use App\Exceptions\FileWrapperException;
 
 class FileWrapper
 {
@@ -16,7 +19,7 @@ class FileWrapper
         if ($delete) {
             return true;
         } else {
-            throw new Exception('Ошибка удаления файла,проверьте передаваемые параметры');
+            throw new FileWrapperException('Ошибка удаления файла,проверьте передаваемые параметры');
         }
     }
 
@@ -26,7 +29,7 @@ class FileWrapper
         if ($delete) {
             return true;
         } else {
-            throw new Exception('Ошибка удаления директории,проверьте передаваемые параметры');
+            throw new FileWrapperException('Ошибка удаления директории,проверьте передаваемые параметры');
         }
     }
 
@@ -35,13 +38,13 @@ class FileWrapper
         if (is_dir($name)) {
             try {
                 $result = $this->deleteDirectory($name);
-            } catch (Exception $e) {
+            } catch (FileWrapperException $e) {
                 echo $e->getMessage();
             }
         } else {
             try {
                 $result = $this->deleteFile($name);
-            } catch (Exception $e) {
+            } catch (FileWrapperException $e) {
                 echo $e->getMessage();
             }
         }
@@ -51,8 +54,9 @@ class FileWrapper
     public function scan(): ?array
     {
         $files = array_values(array_diff(scandir($this->pathToFile), ['..', '.']));
-        if ($files === false) {
-            throw new Exception('Ошибка сканирования директории');
+        var_dump($files);
+        if ($files === null) {
+            throw new FileWrapperException('Ошибка сканирования директории');
         } else {
             return $files;
         }
@@ -64,7 +68,7 @@ class FileWrapper
         if ($rename) {
             return true;
         } else {
-            throw new Exception('Произошла ошибка при попытке переименовыания');
+            throw new FileWrapperException('Произошла ошибка при попытке переименовыания');
         }
     }
 
@@ -98,7 +102,7 @@ class FileWrapper
         if ($result) {
             return $result;
         } else {
-            throw new Exception('Произошла ошибка при чтении файла в массив');
+            throw new FileWrapperException('Произошла ошибка при чтении файла в массив');
         }
     }
 
@@ -109,7 +113,7 @@ class FileWrapper
         if ($dir) {
             return true;
         } else {
-            throw new Exception('Произошла ошибка при создании директории');
+            throw new FileWrapperException('Произошла ошибка при создании директории');
         }
     }
 
@@ -120,7 +124,7 @@ class FileWrapper
         if ($newMode) {
             return true;
         } else {
-            throw new Exception('Произошла ошибка при попытке изменения режима доступа к файлу');
+            throw new FileWrapperException('Произошла ошибка при попытке изменения режима доступа к файлу');
         }
     }
 
@@ -132,14 +136,14 @@ class FileWrapper
             fwrite($fp, $content);
             fclose($fp);
         } else {
-            throw new Exception('Файл уже существует');
+            throw new FileWrapperException('Файл уже существует');
         }
     }
 
     private function fullPath(string $name): string
     {
-        $path = $this->pathToFile . $name;
-        return $path;
+        $pathWithName = $this->pathToFile . $name;
+        return $pathWithName;
     }
 }
 
