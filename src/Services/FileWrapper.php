@@ -60,8 +60,7 @@ class FileWrapper
         return $result;
     }
 
-    public
-    function scan(): ?array
+    public function scan(): ?array
     {
         $files = array_values(array_diff(scandir($this->pathToFiles), ['..', '.']));
         if ($files === null) {
@@ -71,8 +70,7 @@ class FileWrapper
         }
     }
 
-    public
-    function rename(string $oldName, string $newPath, string $newName)
+    public function rename(string $oldName, string $newPath, string $newName)
     {
         $rename = rename($this->pathToFiles . $oldName, $newPath . '\\' . $newName);
         if ($rename) {
@@ -82,21 +80,18 @@ class FileWrapper
         }
     }
 
-    public
-    function setPath(string $path): void
+    public function setPath(string $path): void
     {
         $this->pathToFiles = $path . '\\';
     }
 
-    public
-    function downloadFileWithUrl(string $url, string $name)
+    public function downloadFileWithUrl(string $url, string $name)
     {
         $path = $this->fullPath($name);
         file_put_contents($path, file_get_contents($url));
     }
 
-    public
-    function downloadFileWithCurl(string $url, string $name)
+    public function downloadFileWithCurl(string $url, string $name)
     {
         $ch = curl_init($url);
         $fp = fopen($this->pathToFiles . $name, 'wb');
@@ -108,8 +103,7 @@ class FileWrapper
 
     }
 
-    public
-    function fileToArray(string $name): array
+    public function fileToArray(string $name): array
     {
         $path = $this->fullPath($name);
         $result = file($path);
@@ -120,8 +114,7 @@ class FileWrapper
         }
     }
 
-    public
-    function createDirectory(string $name, int $mode = 0777)
+    public function createDirectory(string $name, int $mode = 0777)
     {
         $path = $this->fullPath($name);
         $dir = mkdir($path, $mode);
@@ -132,8 +125,7 @@ class FileWrapper
         }
     }
 
-    public
-    function changeFileMode(string $name, int $mode)
+    public function changeFileMode(string $name, int $mode)
     {
         $path = $this->fullPath($name);
         $newMode = chmod($path, $mode);
@@ -144,8 +136,7 @@ class FileWrapper
         }
     }
 
-    public
-    function createFile(string $name, $content = '')
+    public function createFile(string $name, $content = '')
     {
         $path = $this->fullPath($name);
         if (!file_exists($path)) {
@@ -157,8 +148,7 @@ class FileWrapper
         }
     }
 
-    private
-    function fullPath(string $name): string
+    private function fullPath(string $name): string
     {
         $pathWithName = $this->pathToFiles . $name;
         return $pathWithName;
