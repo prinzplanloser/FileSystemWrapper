@@ -17,11 +17,10 @@ class FileWrapper
     private function deleteFile(string $name): ?bool
     {
         $delete = unlink($this->fullPath($name));
-        if ($delete) {
-            return true;
-        } else {
+        if (!$delete) {
             throw new FileWrapperException('Ошибка удаления файла,проверьте передаваемые параметры');
         }
+        return true;
     }
 
     private function deleteDirectory(string $dir)
@@ -30,16 +29,15 @@ class FileWrapper
         foreach ($includes as $include) {
             if (is_dir($include) && !is_link($include)) {
                 $this->deleteDirectory($include);
-            } else {
-                unlink($include);
+                continue;
             }
+            unlink($include);
         }
         $delete = rmdir($dir);
-        if ($delete) {
-            return true;
-        } else {
+        if (!$delete) {
             throw new FileWrapperException('Ошибка удаления директории,проверьте передаваемые параметры');
         }
+        return true;
     }
 
     public function delete(string $name): ?bool
@@ -50,12 +48,11 @@ class FileWrapper
             } catch (FileWrapperException $e) {
                 echo $e->getMessage();
             }
-        } else {
-            try {
-                $result = $this->deleteFile($name);
-            } catch (FileWrapperException $e) {
-                echo $e->getMessage();
-            }
+        }
+        try {
+            $result = $this->deleteFile($name);
+        } catch (FileWrapperException $e) {
+            echo $e->getMessage();
         }
         return $result;
     }
@@ -65,19 +62,17 @@ class FileWrapper
         $files = array_values(array_diff(scandir($this->pathToFiles), ['..', '.']));
         if ($files === null) {
             throw new FileWrapperException('Ошибка сканирования директории');
-        } else {
-            return $files;
         }
+        return $files;
     }
 
     public function rename(string $oldName, string $newPath, string $newName)
     {
         $rename = rename($this->pathToFiles . $oldName, $newPath . '\\' . $newName);
-        if ($rename) {
-            return true;
-        } else {
-            throw new FileWrapperException('Произошла ошибка при попытке переименовыания');
+        if (!$rename) {
+            throw new FileWrapperException('Произошла ошибка при попытке переименовывания');
         }
+        return $rename;
     }
 
     public function setPath(string $path): void
@@ -100,29 +95,26 @@ class FileWrapper
         curl_exec($ch);
         curl_close($ch);
         fclose($fp);
-
     }
 
     public function fileToArray(string $name): array
     {
         $path = $this->fullPath($name);
         $result = file($path);
-        if ($result) {
-            return $result;
-        } else {
+        if (!$result) {
             throw new FileWrapperException('Произошла ошибка при чтении файла в массив');
         }
+        return $result;
     }
 
     public function createDirectory(string $name, int $mode = 0777)
     {
         $path = $this->fullPath($name);
         $dir = mkdir($path, $mode);
-        if ($dir) {
-            return true;
-        } else {
+        if (!$dir) {
             throw new FileWrapperException('Произошла ошибка при создании директории');
         }
+        return true;
     }
 
     public function changeFileMode(string $name, int $mode)
@@ -130,27 +122,26 @@ class FileWrapper
         $path = $this->fullPath($name);
         $newMode = chmod($path, $mode);
         if ($newMode) {
-            return true;
-        } else {
             throw new FileWrapperException('Произошла ошибка при попытке изменения режима доступа к файлу');
         }
+        return true;
     }
 
     public function createFile(string $name, $content = '')
     {
         $path = $this->fullPath($name);
-        if (!file_exists($path)) {
-            $fp = fopen($path, 'w');
-            fwrite($fp, $content);
-            fclose($fp);
-        } else {
+        if (file_exists($path)) {
             throw new FileWrapperException('Файл уже существует');
         }
+        $fp = fopen($path, 'w');
+        fwrite($fp, $content);
+        fclose($fp);
     }
 
     private function fullPath(string $name): string
     {
         $pathWithName = $this->pathToFiles . $name;
+
         return $pathWithName;
     }
 }
